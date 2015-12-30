@@ -14,9 +14,9 @@ zmodload -i zsh/mathfunc
 # -c/country (value)    - country; random if omitted
 # skin folder (array)
 
-## zsharg (248):
+## zsharg (251):
 __argv=()ARG_POSTFIX=KS;ARG_PREFIX=AC;ARGV_SKIN_FOLDER=();arg=$1;while [[ $# > 0 ]];do if [[ ! $__args_skip && ${arg[1]} == "-" ]];then case $arg in
---version);echo -e "ac-generate-number-plate.zsh 0.0.248\nNo Copyright.\nLicense CC0v1+: CC0 Universal version 1.0 or later.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by x4fab.";exit 0;;
+--version);echo -e "ac-generate-number-plate.zsh 0.0.251\nNo Copyright.\nLicense CC0v1+: CC0 Universal version 1.0 or later.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by x4fab.";exit 0;;
 -h|--help);echo -e 'Usage: '${0:t}" [OPTION]... [SKIN_FOLDER]... \nGenerate new number plate in SKIN_FOLDER\n\nMandatory arguments to long options are mandatory for short options too.\n  -t, --text=VALUE           text; \"[prefix] [number] [postfix]\" if omitted\n  -n, --number=VALUE         desired number; random if omitted\n  -p, --postfix=VALUE        two last letters; KS if omitted\n  -r, --prefix=VALUE         two first letters; AC if omitted\n  -c, --country=VALUE        country; random if omitted\n      --help     display this help and exit\n      --version  output version information and exit";exit 0;;
 -t|--text);if [[ $# == 0 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_TEXT=$1;shift;;-t*);ARG_TEXT=${arg:2};;--text=*);ARG_TEXT=${arg:6};;
 -n|--number);if [[ $# == 0 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_NUMBER=$1;shift;;-n*);ARG_NUMBER=${arg:2};;--number=*);ARG_NUMBER=${arg:6};;
@@ -74,16 +74,18 @@ function generate(){
 
     if [[ -z $ARG_TEXT ]]; then
         if [[ -z $ARG_NUMBER ]]; then
-            ARG_NUMBER=$[ (rand48() * 1000)|0 ]
+            TEXT_NUMBER=$[ (rand48() * 1000)|0 ]
+        else
+            TEXT_NUMBER=$ARG_NUMBER
         fi
 
-        if [[ $#ARG_NUMBER == 1 ]]; then
-            ARG_NUMBER="00$ARG_NUMBER"
-        elif [[ $#ARG_NUMBER == 2 ]]; then
-            ARG_NUMBER="0$ARG_NUMBER"
+        if [[ $#TEXT_NUMBER == 1 ]]; then
+            TEXT_NUMBER="00$TEXT_NUMBER"
+        elif [[ $#TEXT_NUMBER == 2 ]]; then
+            TEXT_NUMBER="0$TEXT_NUMBER"
         fi
 
-        TEXT="$ARG_PREFIX $ARG_NUMBER $ARG_POSTFIX"
+        TEXT="$ARG_PREFIX $TEXT_NUMBER $ARG_POSTFIX"
     else
         TEXT=$ARG_TEXT
     fi
