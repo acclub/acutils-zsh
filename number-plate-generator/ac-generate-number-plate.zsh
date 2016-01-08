@@ -7,6 +7,8 @@ zmodload -i zsh/mathfunc
 
 # args:
 # description: Generate new number plate in SKIN_FOLDER
+# package: AC Utils
+# version: 0.2
 # -t/text (value)       - text; "[prefix] [number] [postfix]" if omitted
 # -n/number (value)     - desired number; random if omitted
 # -p/postfix=KS (value) - two last letters
@@ -14,18 +16,22 @@ zmodload -i zsh/mathfunc
 # -c/country (value)    - country; random if omitted
 # skin folder (array)
 
-## zsharg (251):
+## zsharg (255):
 __argv=()ARG_POSTFIX=KS;ARG_PREFIX=AC;ARGV_SKIN_FOLDER=();arg=$1;while [[ $# > 0 ]];do if [[ ! $__args_skip && ${arg[1]} == "-" ]];then case $arg in
---version);echo -e "ac-generate-number-plate.zsh 0.0.251\nNo Copyright.\nLicense CC0v1+: CC0 Universal version 1.0 or later.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by x4fab.";exit 0;;
+--version);echo -e "ac-generate-number-plate.zsh (AC Utils) 0.2.255\nNo Copyright.\nLicense CC0v1+: CC0 Universal version 1.0 or later.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by x4fab.";exit 0;;
 -h|--help);echo -e 'Usage: '${0:t}" [OPTION]... [SKIN_FOLDER]... \nGenerate new number plate in SKIN_FOLDER\n\nMandatory arguments to long options are mandatory for short options too.\n  -t, --text=VALUE           text; \"[prefix] [number] [postfix]\" if omitted\n  -n, --number=VALUE         desired number; random if omitted\n  -p, --postfix=VALUE        two last letters; KS if omitted\n  -r, --prefix=VALUE         two first letters; AC if omitted\n  -c, --country=VALUE        country; random if omitted\n      --help     display this help and exit\n      --version  output version information and exit";exit 0;;
--t|--text);if [[ $# == 0 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_TEXT=$1;shift;;-t*);ARG_TEXT=${arg:2};;--text=*);ARG_TEXT=${arg:6};;
--n|--number);if [[ $# == 0 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_NUMBER=$1;shift;;-n*);ARG_NUMBER=${arg:2};;--number=*);ARG_NUMBER=${arg:6};;
--p|--postfix);if [[ $# == 0 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_POSTFIX=$1;shift;;-p*);ARG_POSTFIX=${arg:2};;--postfix=*);ARG_POSTFIX=${arg:6};;
--r|--prefix);if [[ $# == 0 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_PREFIX=$1;shift;;-r*);ARG_PREFIX=${arg:2};;--prefix=*);ARG_PREFIX=${arg:6};;
--c|--country);if [[ $# == 0 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_COUNTRY=$1;shift;;-c*);ARG_COUNTRY=${arg:2};;--country=*);ARG_COUNTRY=${arg:6};;
+-t|--text);if [[ $# == 1 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_TEXT=$2;shift;;-t*);ARG_TEXT=${arg:2};;--text=*);ARG_TEXT=${arg:6};;
+-n|--number);if [[ $# == 1 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_NUMBER=$2;shift;;-n*);ARG_NUMBER=${arg:2};;--number=*);ARG_NUMBER=${arg:6};;
+-p|--postfix);if [[ $# == 1 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_POSTFIX=$2;shift;;-p*);ARG_POSTFIX=${arg:2};;--postfix=*);ARG_POSTFIX=${arg:6};;
+-r|--prefix);if [[ $# == 1 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_PREFIX=$2;shift;;-r*);ARG_PREFIX=${arg:2};;--prefix=*);ARG_PREFIX=${arg:6};;
+-c|--country);if [[ $# == 1 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_COUNTRY=$2;shift;;-c*);ARG_COUNTRY=${arg:2};;--country=*);ARG_COUNTRY=${arg:6};;
 --);__args_skip=1;;-?*);echo "${0:t}: unknown option -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;;
 esac;else __argv+=($arg);fi;shift;arg=$1;done;unset __args_skip;ARGV_SKIN_FOLDER+=( ${__argv[1,-1]} );
 ## zsharg (end)
+
+# echo "text='$ARG_TEXT'"
+# echo "postfix='$ARG_POSTFIX'"
+# exit
 
 SRC_DIR=${0:h}/src
 
