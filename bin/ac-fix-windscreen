@@ -1,0 +1,106 @@
+#!/bin/zsh
+zmodload zsh/datetime
+setopt BRACE_CCL BSD_ECHO EXTENDED_GLOB MULTIBYTE NO_CASE_GLOB NO_CSH_JUNKIE_LOOPS NO_MATCH \
+    NUMERIC_GLOB_SORT RC_EXPAND_PARAM RC_QUOTES RCS RE_MATCH_PCRE SHORT_LOOPS
+
+# args:
+# description: Remove windscreen effect for cars.
+# package: AC Utils
+# version: 0.1
+# -t/temp=/tmp (value)  - temporary files location
+# -o/output (value)!    - output zip file
+# car directory (array)!
+
+## zsharg (105):
+__argv=()ARG_TEMP=/tmp;ARGV_CAR_DIRECTORY=();arg=$1;while [[ $# > 0 ]];do if [[ ! $__args_skip && ${arg[1]} == "-" ]];then case $arg in
+--version);echo -e "ac-fix-windscreen (AC Utils) 0.1.105\nNo Copyright.\nLicense CC0v1+: CC0 Universal version 1.0 or later.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by x4fab.";exit 0;;
+-h|--help);echo -e 'Usage: '${0:t}" [OPTION]... -o VALUE [CAR_DIRECTORY]... \nRemove windscreen effect for cars.\n\nMandatory arguments to long options are mandatory for short options too.\n  -t, --temp=VALUE           temporary files location; /tmp if omitted\n  -o, --output=VALUE         output zip file\n      --help     display this help and exit\n      --version  output version information and exit";exit 0;;
+-t|--temp);if [[ $# == 1 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_TEMP=$2;shift;;-t*);ARG_TEMP=${arg:2};;--temp=*);ARG_TEMP=${arg:6};;
+-o|--output);if [[ $# == 1 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_OUTPUT=$2;shift;;-o*);ARG_OUTPUT=${arg:2};;--output=*);ARG_OUTPUT=${arg:6};;
+--);__args_skip=1;;-?*);echo "${0:t}: unknown option -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;;
+esac;else __argv+=($arg);fi;shift;arg=$1;done;unset __args_skip;ARGV_CAR_DIRECTORY+=( ${__argv[1,-1]} );if [[ -z $ARG_OUTPUT ]]; then echo "${0:t}: missing argument -- output" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;
+## zsharg (end)
+
+TEMP_DIR="$ARG_TEMP/fix_windscreen_$EPOCHSECONDS"
+echo "temp dir: $TEMP_DIR"
+mkdir $TEMP_DIR
+
+function init_res (){
+    BACK=$PWD
+    cd $TEMP_DIR
+    node -e 'function atob(t){ return new Buffer(t,"base64"); }; fs=require("fs");fs.writeFileSync(process.argv[1],atob("RERTIHwAAAAHEAoACAAAAAgAAABAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAEAAAARFhUNQAAAAAAAAAAAAAAAAAAAAAAAAAACBBAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAEAAABVVVVVAAEAAAAAAAABAAAAVVVVVQABAAAAAAAAAQAAAFVVVVUAAQAAAAAAAAEAAABVVVVVAAEAAAAAAAABAAAAVVVVVQABAAAAAAAAAQAAAFVVXV0AAQAAAAAAAAEAAABVV1dXAAEAAAAAAAABAAAAVVdXVwABAAAAAAAAAQAAAFVXV1c="))' _
+    cd $BACK
+}
+
+function clear_res (){
+    rm $TEMP_DIR/_
+}
+
+init_res
+
+function get_windscreen_texture_name (){
+    node -pe 'fs=require("fs");b=fs.readFileSync(process.argv[1]);i=b.indexOf("ksWindscreen");if(i<0)throw 0;i=b.indexOf("txDiffuse",i)+17;s=""+b.slice(i,i+b.readInt32LE(i-4))' $1 2>/dev/null
+}
+
+function process_object (){
+    BACK=$PWD
+
+    if ! cd $1; then
+        echo "car not found"
+        cd $BACK
+        return 1
+    fi
+
+    CAR_ID=${PWD:t}
+    echo "processing: $CAR_ID"
+
+    MAIN_KN5_FILE=( *.kn5(.OL[1]) )
+    echo "  main kn5 file: $MAIN_KN5_FILE"
+
+    if [[ -z $MAIN_KN5_FILE ]]; then
+        echo "main kn5 file is not found"
+        cd $BACK
+        return 1
+    fi
+
+    WINDSCREEN_TEXTURE_NAME=$( get_windscreen_texture_name $MAIN_KN5_FILE )
+
+    if [[ -z $WINDSCREEN_TEXTURE_NAME ]]; then
+        echo "windscreen texture name is not found"
+        cd $BACK
+        return 1
+    fi
+
+    echo "  windscreen texture: $WINDSCREEN_TEXTURE_NAME"
+
+    mkdir $TEMP_DIR/$CAR_ID
+    mkdir $TEMP_DIR/$CAR_ID/skins
+
+    for skin in skins/*; do
+        mkdir $TEMP_DIR/$CAR_ID/$skin
+        cp $TEMP_DIR/_ $TEMP_DIR/$CAR_ID/$skin/$WINDSCREEN_TEXTURE_NAME
+    done
+
+    cd $BACK
+}
+
+for n in $ARGV_CAR_DIRECTORY; do
+    process_object $n
+done
+
+clear_res
+
+DESCRIPTION="Clean Windscreens Patch\n\n"
+DESCRIPTION=$DESCRIPTION"  Build ID: $EPOCHSECONDS\n"
+DESCRIPTION=${${DESCRIPTION%\\n}%\\n}"\n\nTo install fix, move all folders to \"...\\SteamApps\\common\\assettocorsa\\content\\cars\".\n"
+
+DESCRIPTION=${DESCRIPTION//\\n/
+}
+
+DESCRIPTION=$( echo $DESCRIPTION | fold -w 80 -s )
+
+cd $TEMP_DIR
+[[ -f $ARG_OUTPUT ]] && rm $ARG_OUTPUT
+echo $DESCRIPTION | zip -rz9 $ARG_OUTPUT *
+
+cygstart explorer /select,$( cygpath -w $ARG_OUTPUT )
