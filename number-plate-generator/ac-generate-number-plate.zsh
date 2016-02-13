@@ -20,9 +20,9 @@ zmodload -i zsh/mathfunc
 # --nm-name=Plate_NM (value)   - normal map name
 # skin folder (array)
 
-## zsharg (2):
+## zsharg (5):
 __argv=()ARG_MODE=eu;ARG_FORMAT=dds;ARG_DIFF_NAME=Plate_D;ARG_NM_NAME=Plate_NM;ARGV_SKIN_FOLDER=();arg=$1;while [[ $# > 0 ]];do if [[ ! $__args_skip && ${arg[1]} == "-" ]];then case $arg in
---version);echo -e "ac-generate-number-plate.zsh (AC Utils) 0.4.2\nNo Copyright.\nLicense CC0v1+: CC0 Universal version 1.0 or later.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by x4fab.";exit 0;;
+--version);echo -e "ac-generate-number-plate.zsh (AC Utils) 0.4.5\nNo Copyright.\nLicense CC0v1+: CC0 Universal version 1.0 or later.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by x4fab.";exit 0;;
 -h|--help);echo -e 'Usage: '${0:t}" [OPTION]... [SKIN_FOLDER]... \nGenerate new number plate in SKIN_FOLDER\n\nMandatory arguments to long options are mandatory for short options too.\n  -m, --mode=VALUE           mode (eu/us/ca/gb/jp); eu if omitted\n  -c, --country=VALUE        country/state; random if omitted\n  -p, --postfix=VALUE        two last letters; KS if omitted (in europe mode)\n  -r, --prefix=VALUE         two first letters; AC if omitted (in europe mode)\n  -n, --number=VALUE         desired number; random if omitted\n  -t, --text=VALUE           text; \"[prefix] [number] [postfix]\" if omitted\n  -f, --format=VALUE         output format; dds if omitted\n      --diff-name=VALUE      diffuse map name; Plate_D if omitted\n      --nm-name=VALUE        normal map name; Plate_NM if omitted\n      --help     display this help and exit\n      --version  output version information and exit";exit 0;;
 -m|--mode);if [[ $# == 1 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_MODE=$2;shift;;-m*);ARG_MODE=${arg:2};;--mode=*);ARG_MODE=${arg#*=};;
 -c|--country);if [[ $# == 1 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_COUNTRY=$2;shift;;-c*);ARG_COUNTRY=${arg:2};;--country=*);ARG_COUNTRY=${arg#*=};;
@@ -200,13 +200,13 @@ function generate(){
             NUMBER_TEXT="·· ·${tmp_number[4]}"
         fi
 
-        HIRAGANA_TEXT=$ARG_PREFIX
+        HIRAGANA_TEXT=${ARG_PREFIX[1]}
         if [[ -z $HIRAGANA_TEXT ]]; then
             HIRAGANA_VALUES="さすせそたちつてとなにぬねのはひふほまみむめもやゆよらりるろ"
             HIRAGANA_TEXT=${HIRAGANA_VALUES[ $[ (1 + rand48()*$#HIRAGANA_VALUES )|0 ] ]}
         fi
 
-        PREFECTURE_TEXT=${ARG_POSTFIX%%[0-9]*}
+        PREFECTURE_TEXT=${ARG_PREFIX:1}
         if [[ -z $PREFECTURE_TEXT ]]; then
             PREFECTURE_VALUES=( "豊橋" "三河" "秋田" "青森" "八戸" "千葉" "野田" "愛媛" "福井" "福岡" "筑豊" "福島" "岐阜" "飛騨" 
                 "群馬" "福山" "広島" "旭川" "函館" "北見" "釧路" "室蘭" "帯広" "札幌" "姫路" "神戸" "水戸" "土浦" "石川" "岩手" "香川" 
@@ -216,7 +216,7 @@ function generate(){
             PREFECTURE_TEXT=${PREFECTURE_VALUES[ $[ (1 + rand48()*$#PREFECTURE_VALUES )|0 ] ]}
         fi
 
-        VEHICLE_TEXT=${${ARG_POSTFIX##*[^0-9]}:-$VEHICLE_GENERATED}
+        VEHICLE_TEXT=${ARG_POSTFIX:-$VEHICLE_GENERATED}
         if [[ -z $VEHICLE_TEXT ]]; then
             VEHICLE_VALUES=( 34 500 580 302 336 330 )
             VEHICLE_TEXT=${VEHICLE_VALUES[ $[ (1 + rand48()*$#VEHICLE_VALUES )|0 ] ]}
