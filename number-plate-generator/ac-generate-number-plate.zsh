@@ -3,7 +3,7 @@
 setopt BRACE_CCL BSD_ECHO EXTENDED_GLOB MULTIBYTE NO_CASE_GLOB NO_CSH_JUNKIE_LOOPS NO_MATCH \
     NUMERIC_GLOB_SORT RC_EXPAND_PARAM RC_QUOTES RCS RE_MATCH_PCRE SHORT_LOOPS
 
-zmodload -i zsh/mathfunc
+zmodload -i zsh/mathfunc zsh/datetime
 
 # args:
 # description: Generate new number plate in SKIN_FOLDER
@@ -20,20 +20,20 @@ zmodload -i zsh/mathfunc
 # --nm-name=Plate_NM (value)   - normal map name
 # skin folder (array)
 
-## zsharg (5):
-__argv=()ARG_MODE=eu;ARG_FORMAT=dds;ARG_DIFF_NAME=Plate_D;ARG_NM_NAME=Plate_NM;ARGV_SKIN_FOLDER=();arg=$1;while [[ $# > 0 ]];do if [[ ! $__args_skip && ${arg[1]} == "-" ]];then case $arg in
---version);echo -e "ac-generate-number-plate.zsh (AC Utils) 0.4.5\nNo Copyright.\nLicense CC0v1+: CC0 Universal version 1.0 or later.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by x4fab.";exit 0;;
+## zsharg (69):
+SCRIPTNAME=${0:t};_ARGERR(){ echo "$SCRIPTNAME: $1 -- ${2/(-|)-/}" 1>&2; echo "Try '$SCRIPTNAME --help' for more information." 1>&2; exit 1; };__argv=()ARG_MODE=eu;ARG_FORMAT=dds;ARG_DIFF_NAME=Plate_D;ARG_NM_NAME=Plate_NM;ARGV_SKIN_FOLDER=();arg=$1;while [[ $# > 0 ]];do if [[ ! $__args_skip && ${arg[1]} == "-" ]];then case $arg in
+--version);echo -e "ac-generate-number-plate.zsh (AC Utils) 0.4.69\nNo Copyright.\nLicense CC0v1+: CC0 Universal version 1.0 or later.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by x4fab.";exit 0;;
 -h|--help);echo -e 'Usage: '${0:t}" [OPTION]... [SKIN_FOLDER]... \nGenerate new number plate in SKIN_FOLDER\n\nMandatory arguments to long options are mandatory for short options too.\n  -m, --mode=VALUE           mode (eu/us/ca/gb/jp); eu if omitted\n  -c, --country=VALUE        country/state; random if omitted\n  -p, --postfix=VALUE        two last letters; KS if omitted (in europe mode)\n  -r, --prefix=VALUE         two first letters; AC if omitted (in europe mode)\n  -n, --number=VALUE         desired number; random if omitted\n  -t, --text=VALUE           text; \"[prefix] [number] [postfix]\" if omitted\n  -f, --format=VALUE         output format; dds if omitted\n      --diff-name=VALUE      diffuse map name; Plate_D if omitted\n      --nm-name=VALUE        normal map name; Plate_NM if omitted\n      --help     display this help and exit\n      --version  output version information and exit";exit 0;;
--m|--mode);if [[ $# == 1 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_MODE=$2;shift;;-m*);ARG_MODE=${arg:2};;--mode=*);ARG_MODE=${arg#*=};;
--c|--country);if [[ $# == 1 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_COUNTRY=$2;shift;;-c*);ARG_COUNTRY=${arg:2};;--country=*);ARG_COUNTRY=${arg#*=};;
--p|--postfix);if [[ $# == 1 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_POSTFIX=$2;shift;;-p*);ARG_POSTFIX=${arg:2};;--postfix=*);ARG_POSTFIX=${arg#*=};;
--r|--prefix);if [[ $# == 1 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_PREFIX=$2;shift;;-r*);ARG_PREFIX=${arg:2};;--prefix=*);ARG_PREFIX=${arg#*=};;
--n|--number);if [[ $# == 1 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_NUMBER=$2;shift;;-n*);ARG_NUMBER=${arg:2};;--number=*);ARG_NUMBER=${arg#*=};;
--t|--text);if [[ $# == 1 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_TEXT=$2;shift;;-t*);ARG_TEXT=${arg:2};;--text=*);ARG_TEXT=${arg#*=};;
--f|--format);if [[ $# == 1 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_FORMAT=$2;shift;;-f*);ARG_FORMAT=${arg:2};;--format=*);ARG_FORMAT=${arg#*=};;
--<1-0>|--diff-name);if [[ $# == 1 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_DIFF_NAME=$2;shift;;-<1-0>*);ARG_DIFF_NAME=${arg:2};;--diff-name=*);ARG_DIFF_NAME=${arg#*=};;
--<1-0>|--nm-name);if [[ $# == 1 ]];then;echo "${0:t}: option requires an argument -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;fi;ARG_NM_NAME=$2;shift;;-<1-0>*);ARG_NM_NAME=${arg:2};;--nm-name=*);ARG_NM_NAME=${arg#*=};;
---);__args_skip=1;;-?*);echo "${0:t}: unknown option -- ${arg/(-|)-/}" 1>&2;echo "Try '${0:t} --help' for more information." 1>&2;exit 1;;
+-m|--mode);[[ $# == 1 ]] && _ARGERR "option requires an argument" $arg;ARG_MODE=$2;shift;;-m*);ARG_MODE=${arg:2};;--mode=*);ARG_MODE=${arg#*=};;
+-c|--country);[[ $# == 1 ]] && _ARGERR "option requires an argument" $arg;ARG_COUNTRY=$2;shift;;-c*);ARG_COUNTRY=${arg:2};;--country=*);ARG_COUNTRY=${arg#*=};;
+-p|--postfix);[[ $# == 1 ]] && _ARGERR "option requires an argument" $arg;ARG_POSTFIX=$2;shift;;-p*);ARG_POSTFIX=${arg:2};;--postfix=*);ARG_POSTFIX=${arg#*=};;
+-r|--prefix);[[ $# == 1 ]] && _ARGERR "option requires an argument" $arg;ARG_PREFIX=$2;shift;;-r*);ARG_PREFIX=${arg:2};;--prefix=*);ARG_PREFIX=${arg#*=};;
+-n|--number);[[ $# == 1 ]] && _ARGERR "option requires an argument" $arg;ARG_NUMBER=$2;shift;;-n*);ARG_NUMBER=${arg:2};;--number=*);ARG_NUMBER=${arg#*=};;
+-t|--text);[[ $# == 1 ]] && _ARGERR "option requires an argument" $arg;ARG_TEXT=$2;shift;;-t*);ARG_TEXT=${arg:2};;--text=*);ARG_TEXT=${arg#*=};;
+-f|--format);[[ $# == 1 ]] && _ARGERR "option requires an argument" $arg;ARG_FORMAT=$2;shift;;-f*);ARG_FORMAT=${arg:2};;--format=*);ARG_FORMAT=${arg#*=};;
+-<1-0>|--diff-name);[[ $# == 1 ]] && _ARGERR "option requires an argument" $arg;ARG_DIFF_NAME=$2;shift;;-<1-0>*);ARG_DIFF_NAME=${arg:2};;--diff-name=*);ARG_DIFF_NAME=${arg#*=};;
+-<1-0>|--nm-name);[[ $# == 1 ]] && _ARGERR "option requires an argument" $arg;ARG_NM_NAME=$2;shift;;-<1-0>*);ARG_NM_NAME=${arg:2};;--nm-name=*);ARG_NM_NAME=${arg#*=};;
+--);__args_skip=1;;-?*);_ARGERR "unknown option" $arg;;
 esac;else __argv+=($arg);fi;shift;arg=$1;done;unset __args_skip;ARGV_SKIN_FOLDER+=( ${__argv[1,-1]} );
 ## zsharg (end)
 
@@ -62,16 +62,22 @@ function pos_sub(){
 }
 
 function random_number(){
+    RAND_SEED=$[ (EPOCHREALTIME % 1 * 10000000000) | 0 ]
+
     min=$1
     max=$2
-    echo $[ (min + rand48() * (1 + max - min))|0 ]
+    echo $[ min + (RANDOM + RAND_SEED) % (1 + max - min) ]
 }
 
 CHARACTERS=( {A-Z0-9} )
 function random_text(){
+    RAND_SEED=$[ (EPOCHREALTIME % 1 * 10000000000) | 0 ]
+    # echo $RAND_SEED >&2
+
     value=
     while [[ $#value < $1 ]]; do
-        value="$value${CHARACTERS[ $[ (1 + rand48() * $#CHARACTERS)|0 ] ]}"
+        # value="$value${CHARACTERS[ $[ (1 + rand48(RAND_SEED) * $#CHARACTERS)|0 ] ]}"
+        value="$value${CHARACTERS[ $[ 1 + (RANDOM + RAND_SEED) % $#CHARACTERS ] ]}"
     done
     echo $value
 }
@@ -178,13 +184,17 @@ function generate(){
     elif [[ $ARG_MODE == "us" ]]; then
         SIZE=1024x540
         TEXT_COLOR="#041589"
-        TEXT_SPACING=140
-        TEXT_KERNING=-23
-        TEXT_POS=+0+1
+        TEXT_SPACING=0
+        TEXT_KERNING=0
+        TEXT_POS=+0+21
         TEXT_SIZE=240
         FONT="$SRC_DIR/font/usa.ttf"
 
-        [[ -z $ARG_TEXT ]] && TEXT="$( fill_zeros 4 ${ARG_PREFIX:-$( random_text 4 )} ) $( fill_zeros 3 ${ARG_NUMBER:-$( random_text 3 )} )"
+        if [[ -e ${BACKGROUND:0:-4}.zsh ]]; then
+            . ${BACKGROUND:0:-4}.zsh
+        fi
+
+        [[ -z $ARG_TEXT ]] && TEXT="$( fill_zeros 4 ${ARG_PREFIX:-$( random_text 4 )} )$( fill_zeros 3 ${ARG_NUMBER:-$( random_text 3 )} )"
     elif [[ $ARG_MODE == "jp" ]]; then
         SIZE=1024x512
         TEXT_COLOR="#31503b"
